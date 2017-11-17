@@ -20,5 +20,4 @@ public class APITask<T> implements Callable<T> {
 		CloseableHttpClient httpclient = HttpClientUtil.getHttpClient();
 		return HttpClientUtil.requestPost(httpclient, url, reqData);
 	}
-
 }
