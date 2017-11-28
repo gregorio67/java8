@@ -1,0 +1,44 @@
+Private Key import
+keytool 은 외부에서 생성된 private key 를 keystore 에 import 하는 방법을 제공하지 않는다. 한 가지 방법은 JDK 6 이상부터 PKCS#12 으로 된 인증서와 개인키를 keystore 에 import 하는게 가능하므로 openssl 로 pkcs#12 를 만들고 pkcs#12 를 KeyStore 로임포트하면 된다.
+ 
+이미 외부에서 개인키(mycert.key)와 인증서(mycert.crt)는 생성되었다고 가정한다.
+인증서와 개인키가 DER 방식으로 encoding 되어있으면 openssl 에서 pkcs12 로 변환하지 못하니 PEM 형식으로 변환해야 한다. 에디터로 열어서 다음과 같이 텍스트로 표시되면 PEM 이고 바이너리면 DER 이므로 변환해야 한다.
+ PEM 예제
+openssl 로 변환
+## 인증서를 PEM 으로 변환
+$ openssl x509 -inform der -in mycert.der -out mycert.crt
+## 개인키 변환
+$ openssl rsa -inform der -in mycert.key.der -out mycert.key
+openssl 로 PKCS12 생성
+$ openssl pkcs12 -export -in mycert.crt -inkey mycert.key -out mykeystore.p12 -name "some alias"
+Enter Export Password: 에 pkcs12 암호 입력(예: qwert123)
+keytool 로 PKCS12 를 KeyStore 로 변환
+$ keytool -importkeystore -deststorepass changeit -destkeypass changeit -destkeystore my-keystore.jks -srckeystore mykeystore.p12 -srcstoretype PKCS12 -srcstorepass qwert123 -alias "some alias"
+ 
+alias 변경
+$ keytool -changealias -keystore MY_KEYSTORE_2.jks -alias OLD_ALIAS -destalias NEW_ALIAS
+ 
+ 
+암호 변경
+Key Store 에 저장된 개인키를 보호하기 위해 key store 자체에 대해서 암호를 걸 수 있고 특정 alias 에 저장된 개인키에도 암호를 걸 수 있다.
+keystore 암호 변경
+jks_keystore  라는 키스토어  파일의 암호를 변경한다.
+$ keytool -storepasswd -keystore jks_keystore
+  
+Enter keystore password: 
+New keystore password:
+Re-enter new keystore password:
+ 
+key 암호 변경
+jks_keystore 라는 키스토어 파일내의 mykey 라는 alias 를 가진 개인키의 암호를 변경한다.
+$ keytool -keypasswd -alias mykey -keystore jks_keystore
+ 
+  
+  
+Enter keystore password: 
+Enter key password for <mykey>
+New key password for <mykey>:
+Re-enter new key password for <mykey>:
+ 
+ 
+ 
