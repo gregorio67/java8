@@ -1,3 +1,12 @@
+인증서 Import
+-importcert 명령으로 인증서를 임포트할 수 있다. 만약 인증기관 인증서라면 -trustcacerts 옵션을 추가한다. 
+$ keytool -importcert -keystore my-keystore.jks -storepass changeit -trustcacerts -alias rootca -file "rootca.der"
+
+
+다음 명령으로 KeyStore 내 인증서 목록을 출력할 수 있다.
+$ keytool -list -keystore my-keystore.jks
+
+
 Private Key import
 keytool 은 외부에서 생성된 private key 를 keystore 에 import 하는 방법을 제공하지 않는다. 한 가지 방법은 JDK 6 이상부터 PKCS#12 으로 된 인증서와 개인키를 keystore 에 import 하는게 가능하므로 openssl 로 pkcs#12 를 만들고 pkcs#12 를 KeyStore 로임포트하면 된다.
  
